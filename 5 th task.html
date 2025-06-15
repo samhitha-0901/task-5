@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SatyaShop - E-Commerce</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Segoe UI',sans-serif;background:#f9f9f9;color:#333;}
+    header{background:#ff6f61;padding:1rem;text-align:center;color:white;}
+    nav{display:flex;justify-content:center;gap:2rem;background:#e65b50;padding:0.5rem;}
+    nav a{color:white;text-decoration:none;font-weight:bold;}
+    nav a:hover{text-decoration:underline;}
+    .hero{background:linear-gradient(to right,#ffecd2,#fcb69f);padding:2rem;text-align:center;}
+    .hero h1{font-size:2.5rem;margin-bottom:0.5rem;}
+    .hero p{font-size:1.1rem;}
+
+    .filters{text-align:center;padding:1rem;}
+    .filters button{margin:0.5rem;padding:0.5rem 1rem;background:#4CAF50;color:#fff;border:none;border-radius:5px;cursor:pointer;}
+    .filters button:hover{background:#388e3c;}
+
+    .products{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;padding:1.5rem;}
+    .card{background:white;padding:1rem;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+    .card img{width:100%;border-radius:8px;height:240px;object-fit:cover;}
+    .card h3{margin-top:1rem;font-size:1.1rem;}
+    .price{color:#4CAF50;font-weight:bold;margin:0.3rem 0;}
+    .btn{padding:0.5rem 1rem;background:#ff6f61;color:#fff;border:none;border-radius:5px;cursor:pointer;}
+    .btn:hover{background:#e65b50;}
+
+    #cart{padding:1rem;background:#fff;border-radius:8px;margin:2rem auto;max-width:700px;box-shadow:0 0 10px rgba(0,0,0,0.1);}
+    #cart h2{text-align:center;margin-bottom:1rem;}
+    .cart-items{margin-bottom:1rem;}
+    .cart-items li{margin:0.5rem 0;}
+    .total{font-weight:bold;margin-top:1rem;text-align:right;}
+    #checkoutForm{display:none;flex-direction:column;gap:1rem;background:white;padding:1rem;border-radius:8px;}
+    input{padding:0.7rem;border:1px solid #ccc;border-radius:6px;}
+    #checkoutBtn{background:#4CAF50;color:white;border:none;padding:0.8rem;border-radius:6px;}
+    #checkoutBtn:hover{background:#388e3c;}
+
+    footer{text-align:center;padding:1rem;background:#2e2e2e;color:white;margin-top:3rem;}
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>SatyaShop</h1>
+    <p>Fashion. Style. Comfort.</p>
+  </header>
+
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#products">Products</a>
+    <a href="#cart">Cart</a>
+  </nav>
+
+  <section class="hero" id="home">
+    <h1>Welcome to SatyaShop</h1>
+    <p>Get the best clothing deals today!</p>
+  </section>
+
+  <section class="filters">
+    <button onclick="filterProducts('all')">All</button>
+    <button onclick="filterProducts('men')">Men</button>
+    <button onclick="filterProducts('women')">Women</button>
+  </section>
+
+  <section id="products" class="products">
+    <!-- Product Cards -->
+    <div class="card" data-category="men">
+      <img src="https://source.unsplash.com/400x400/?shirt,men" alt="Men Shirt">
+      <h3>Casual Shirt</h3>
+      <p class="price">₹699</p>
+      <button class="btn" onclick="addToCart('Casual Shirt', 699)">Add to Cart</button>
+    </div>
+    <div class="card" data-category="women">
+      <img src="https://source.unsplash.com/400x400/?dress,women" alt="Dress">
+      <h3>Summer Dress</h3>
+      <p class="price">₹999</p>
+      <button class="btn" onclick="addToCart('Summer Dress', 999)">Add to Cart</button>
+    </div>
+    <div class="card" data-category="men">
+      <img src="https://source.unsplash.com/400x400/?tshirt,men" alt="T-shirt">
+      <h3>Graphic T-Shirt</h3>
+      <p class="price">₹499</p>
+      <button class="btn" onclick="addToCart('Graphic T-Shirt', 499)">Add to Cart</button>
+    </div>
+    <div class="card" data-category="women">
+      <img src="https://source.unsplash.com/400x400/?shoes,women" alt="Shoes">
+      <h3>Stylish Shoes</h3>
+      <p class="price">₹1499</p>
+      <button class="btn" onclick="addToCart('Stylish Shoes', 1499)">Add to Cart</button>
+    </div>
+  </section>
+
+  <section id="cart">
+    <h2>Your Cart</h2>
+    <ul class="cart-items" id="cartItems"></ul>
+    <p class="total">Total: ₹<span id="totalAmount">0</span></p>
+    <button class="btn" onclick="showCheckout()">Proceed to Checkout</button>
+
+    <form id="checkoutForm">
+      <h3>Checkout</h3>
+      <input type="text" placeholder="Full Name" required />
+      <input type="text" placeholder="Address" required />
+      <input type="text" placeholder="Card Number" required />
+      <input type="text" placeholder="CVV" required />
+      <button type="submit" id="checkoutBtn">Pay Now</button>
+    </form>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 SatyaShop. All rights reserved.</p>
+  </footer>
+
+  <script>
+    let cart = [];
+
+    function addToCart(name, price) {
+      const existing = cart.find(item => item.name === name);
+      if (existing) {
+        existing.qty++;
+      } else {
+        cart.push({ name, price, qty: 1 });
+      }
+      updateCart();
+    }
+
+    function updateCart() {
+      const cartItems = document.getElementById("cartItems");
+      const totalAmount = document.getElementById("totalAmount");
+      cartItems.innerHTML = '';
+      let total = 0;
+      cart.forEach(item => {
+        const itemTotal = item.price * item.qty;
+        total += itemTotal;
+        const li = document.createElement('li');
+        li.textContent = `${item.name} x ${item.qty} - ₹${itemTotal}`;
+        cartItems.appendChild(li);
+      });
+      totalAmount.textContent = total;
+    }
+
+    function filterProducts(category) {
+      const cards = document.querySelectorAll(".card");
+      cards.forEach(card => {
+        const cat = card.getAttribute("data-category");
+        if (category === 'all' || cat === category) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function showCheckout() {
+      document.getElementById("checkoutForm").style.display = 'flex';
+    }
+
+    document.getElementById("checkoutForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      alert("Payment Successful! Thank you for shopping with SatyaShop.");
+      cart = [];
+      updateCart();
+      this.reset();
+      this.style.display = 'none';
+    });
+  </script>
+
+</body>
+</html>
+
+
+
